@@ -15,12 +15,13 @@ using System.Security.Principal;
 //using System.Security.Principal;
 //using System.IO; // работа с файлами 
 using System.Reflection;
+using alphaserver_cfg;
 
 
 
 
 
-class Program
+partial class Program
 {
     //переменные для параметров запуска 
     static bool launchIsAdmin = false; // выставляется в true когда запускаем приложение с правами администратора
@@ -28,16 +29,16 @@ class Program
     static bool needToInsrall = false; // установка
     static bool needToUnInstall = false; // удаление
     static bool help = false; // помощь
-    static bool remote = false;
+    static bool remote = true;
     //static string CurrentDir = Assembly.GetExecutingAssembly().Location.Remove(Assembly.GetExecutingAssembly().Location.LastIndexOf("\\")); //текущая папка с проектом
     static string CurrentDir = AppDomain.CurrentDomain.BaseDirectory;
-    static bool epmtyParametr = true;
+    static bool epmtyParametr = false; 
     static string currentPathToServer = "C:\\Program Files\\Automiq\\Alpha.Server\\Server";
     static string currnetCfgName = "APServer.cfg";
+    static FuncExcept MsgExept = new FuncExcept();
 
-  
 
-    
+
     //информация по лог файлу
     static string logfileName = "logFile.txt";
     static string CombinePath = Path.Combine(CurrentDir, logfileName); //общий путь до файла
@@ -186,7 +187,6 @@ class Program
         connection.Authentication = AuthenticationLevel.Unchanged;
         connection.Impersonation = ImpersonationLevel.Impersonate;
         ManagementScope scope = new ManagementScope("\\\\172.16.149.118\\root\\CIMV2", connection);
-        //@"\\" + strIPAddress + @"\root\cimv2"
         scope.Connect();
         Console.WriteLine("IsConnected="+scope.IsConnected);
         Console.ReadLine();
@@ -290,6 +290,8 @@ class Program
 
         try
         {
+            getConnectToRemotePC();
+            Console.ReadLine();
             if (!IsAdministrator()&& !launchIsAdmin && !help && !epmtyParametr)
             {
 
@@ -345,7 +347,7 @@ class Program
         }
          catch (Exception e)
         {
-            generateMsg(e.ToString());
+            generateMsg(MsgExept.ExpionMsg(e.ToString()));
             Console.WriteLine(e.ToString());
             Console.ReadLine();
         }
