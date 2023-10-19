@@ -42,21 +42,7 @@ partial class Program
     public static string CombinePath = Path.Combine(CurrentDir, logfileName); //общий путь до файла
 
 
-    static void getConnectToRemotePC()
-    {
-        ConnectionOptions connection = new ConnectionOptions();
-        //connection.Username = "DESKTOP-U4JAP8P\\AutomiqUsr";
-        connection.Username = "AutomiqUsr";
-        connection.Password = "qwerty@123";
-        connection.Authority = "ntlmdomain:DOMAIN";
-        connection.EnablePrivileges = true;
-        connection.Authentication = AuthenticationLevel.Unchanged;
-        connection.Impersonation = ImpersonationLevel.Impersonate;
-        ManagementScope scope = new ManagementScope("\\\\172.16.149.118\\root\\CIMV2", connection);
-        scope.Connect();
-        Console.WriteLine("IsConnected="+scope.IsConnected);
-        Console.ReadLine();
-    }
+
 
     static void Main(string[] args)
     {
@@ -118,10 +104,6 @@ partial class Program
 
 
 
-        try
-        {
-            //getConnectToRemotePC();
-            //Console.ReadLine();
             if (!FuncData.IsAdministrator()&& !launchIsAdmin && !help && !epmtyParametr)
             {
 
@@ -141,6 +123,9 @@ partial class Program
             }
             else if (FuncData.IsAdministrator() && !epmtyParametr && !help)
             {
+                //Console.WriteLine(Proc_arg);
+                //getConnectToRemotePC();
+                //Console.ReadLine();
                 if (needToInsrall)
                 {
                     FuncData.regData("install",CurrentDir);
@@ -169,17 +154,22 @@ partial class Program
                 }
                 else if (remote)
                 {
-                    getConnectToRemotePC();
-                    //Console.ReadLine();
+                    string _IP = "192.168.1.39";
+                    string _user = "administrator";
+                    string _password = "qwerty@123";
+                    try
+                    {
+                        Console.WriteLine("Remote");
+                        //FuncRemote.getConnectToRemotePC(_IP, _user, _password);
+                        //Console.ReadLine();
+                    }
+                    catch (Exception e)
+                    {
+                        FuncData.generateMsg("При подключени к "+_IP + "\\"+ _user + " произошла ошибка: " +FuncExcept.ExceptionMsg(e.ToString()));
+                    }
+
                 }
 
             }
-        }
-         catch (Exception e)
-        {
-            FuncData.generateMsg(MsgExept.ExpionMsg(e.ToString()));
-            //Console.WriteLine(e.ToString());
-            //Console.ReadLine();
-        }
     }
 }
