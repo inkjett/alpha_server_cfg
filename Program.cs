@@ -5,17 +5,19 @@ using System.Management;
 using System.Diagnostics;
 using System.Text;
 //using System.Runtime.InteropServices;
-using System.ServiceProcess; // нужно добавить ссылку в проект
+//using System.ServiceProcess; // нужно добавить ссылку в проект
 //using static System.Net.Mime.MediaTypeNames;
 //using static System.ServiceProcess.ServiceController;
-using Microsoft.Win32;
+//using Microsoft.Win32;
 //using Windows;
-using System.Security.Principal;
+//using System.Security.Principal;
 //using System.Diagnostics;
 //using System.Security.Principal;
-//using System.IO; // работа с файлами 
+using System.IO; // работа с файлами 
 using System.Reflection;
 using alphaserver_cfg;
+using System.Windows.Threading;
+using System.Windows;
 
 
 partial class Program
@@ -43,54 +45,64 @@ partial class Program
 
 
 
-
     static void Main(string[] args)
     {
-        //var temp = Assembly.GetExecutingAssembly();
-        //generateMsg("Location="+Assembly.GetExecutingAssembly());
         //проходим по аргументам при запуске файла проекта
         ProcessStartInfo proc = new ProcessStartInfo();
         proc.UseShellExecute = true; // непонятный параметр, который не позволяет запускать приложение из cmd если true
         
         proc.WorkingDirectory = CurrentDir;
         proc.FileName = CurrentDir + "\\alphaserver_cfg.exe";
-        string Proc_arg = ""; 
-        foreach (string arg in args) // Аргументы при запуске процессе
+        string Proc_arg = "";
+        Console.WriteLine(args.Length);
+        if (args.Length != 0)
         {
-            if (arg.Contains(".cfg"))
+            foreach (string arg in args) // Аргументы при запуске процессе
             {
-                Proc_arg = arg;
-                epmtyParametr = false;
+                if (arg.Contains(".cfg"))
+                {                              
+                    Proc_arg = arg;
+                    Proc_arg = Proc_arg.Replace(" ", "<");
+                    epmtyParametr = false;
+                    break;
+                }
+                else if (arg.Contains("help") || arg.Contains("?"))
+                {
+                    help = true;
+                    epmtyParametr = false;
+                }
+                else if (arg == "launchisAdminTrue" && !help)
+                {
+                    launchIsAdmin = true;
+                    epmtyParametr = false;
+                }
+                else if (arg == "install" && !help && !needToUnInstall)
+                {
+                    needToInsrall = true;
+                    Proc_arg += "install";
+                    epmtyParametr = false;
+                }
+                else if (arg == "uninstall" && !help && !needToInsrall)
+                {
+                    needToUnInstall = true;
+                    Proc_arg += " uninstall";
+                    epmtyParametr = false;
+                }
+                else if (arg == "remote")
+                {
+                    remote = true;
+                    Proc_arg = " remote";
+                    epmtyParametr = false;
+                }
             }
-            else if (arg.Contains("help") || arg.Contains("?"))
+        }
+        else
+        {
+            /*Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                help = true;
-                epmtyParametr = false;
-            }
-            else if (arg == "launchisAdminTrue" && !help)
-            {
-                launchIsAdmin = true;
-                epmtyParametr = false;
-            }
-            else if (arg == "install" && !help && !needToUnInstall)
-            {
-                needToInsrall = true;
-                Proc_arg += "install";
-                epmtyParametr = false;
-            }
-            else if (arg == "uninstall" && !help && !needToInsrall)
-            {
-                needToUnInstall = true;
-                Proc_arg += " uninstall";
-                epmtyParametr = false;
-            }
-            else if (arg == "remote")
-            {
-                remote = true;
-                Proc_arg = " remote";
-                epmtyParametr = false;
-            }
-        }    
+                var window = new CurrentWindow();
+            });*/
+        }
 
         //пока не придумал ничего лучше по получению пути до запускаемого файла, ниже это примеры что пробывал 
         //Console.WriteLine("CodeBase="+System.Reflection.Assembly.GetEntryAssembly().CodeBase); //Location=C:\Users\AutomiqUsr\Desktop\projects\alphaserver_cfg\alphaserver_cfg\bin\Debug\net6.0\alphaserver_cfg.dll
@@ -98,78 +110,76 @@ partial class Program
         //Console.WriteLine("GetCurrentDirectory="+Directory.GetCurrentDirectory());// GetCurrentDirectory=C:\Users\AutomiqUsr        
         //Console.WriteLine("FileName=" + proc.FileName); //FileName=C:\Users\AutomiqUsr\alphaserver_cfg.exe
         //Console.WriteLine("FileName2="+ Assembly.GetExecutingAssembly().Location.Remove(Assembly.GetExecutingAssembly().Location.LastIndexOf("\\"))); //FileName2=C:\Users\AutomiqUsr
+        //FuncData.generateMsg("Proc_arg1=" + Proc_arg);
         proc.Arguments = Proc_arg;
         //proc.Arguments = "launchisAdminTrue" + (needLogs ? " needLogs" : "") + (needToInsrall ? " needToInsrall" : "") + (needToInsrall ? " needToInsrall" : "");
         proc.Verb = "runas";
-
-
-
-            if (!FuncData.IsAdministrator()&& !launchIsAdmin && !help && !epmtyParametr)
+        if (!FuncData.IsAdministrator()&& !launchIsAdmin && !help && !epmtyParametr)
+        {
+            Process.Start(proc); //запукаем процесс поторно с правами администаратора
+            Environment.Exit(0); // завершаем текущий
+        }
+        else if (help)
+        {
+            /*.WriteLine("Приложение для автоматического копирования конфигурации Alpha.Server в папку со службой Alpha.Server и автоматическим перезапуском службы");
+            Console.WriteLine("Для установки/удаления приложения используйте атрибуты install или uninstall, пример alphaserver_cfg.exe install или alphaserver_cfg.exe uninstall");
+            Console.WriteLine("Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg");
+            Console.WriteLine("Made by Oleg Galyamov for all users using AlphaPlatform (galyamov.oleg@automiq.ru)");*/
+            FuncData.generateMsg("Приложение для автоматического копирования конфигурации Alpha.Server в папку со службой Alpha.Server и автоматическим перезапуском службы.\n" +
+                        "Для установки/удаления приложения используйте атрибуты install или uninstall, пример alphaserver_cfg.exe install или alphaserver_cfg.exe uninstall.\n"+
+                        "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg\n"+
+                        "Made by Oleg Galyamov for all users using AlphaPlatform (galyamov.oleg@automiq.ru)");
+        }
+        else if (FuncData.IsAdministrator() && !epmtyParametr && !help)
+        {
+            if (needToInsrall)
             {
-
-               Process.Start(proc); //запукаем процесс поторно с парвами администаратора
-               Environment.Exit(0); // завершаем текущий
+                FuncData.regData("install",CurrentDir);
             }
-            else if (help)
+            if (needToUnInstall)
             {
-                /*.WriteLine("Приложение для автоматического копирования конфигурации Alpha.Server в папку со службой Alpha.Server и автоматическим перезапуском службы");
-                Console.WriteLine("Для установки/удаления приложения используйте атрибуты install или uninstall, пример alphaserver_cfg.exe install или alphaserver_cfg.exe uninstall");
-                Console.WriteLine("Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg");
-                Console.WriteLine("Made by Oleg Galyamov for all users using AlphaPlatform (galyamov.oleg@automiq.ru)");*/
-                FuncData.generateMsg("Приложение для автоматического копирования конфигурации Alpha.Server в папку со службой Alpha.Server и автоматическим перезапуском службы.\n" +
-                            "Для установки/удаления приложения используйте атрибуты install или uninstall, пример alphaserver_cfg.exe install или alphaserver_cfg.exe uninstall.\n"+
-                            "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg\n"+
-                            "Made by Oleg Galyamov for all users using AlphaPlatform (galyamov.oleg@automiq.ru)");
+                FuncData.regData("uninstall", CurrentDir);
             }
-            else if (FuncData.IsAdministrator() && !epmtyParametr && !help)
+            else if (!needToInsrall && !needToUnInstall &&!remote)
             {
-                //Console.WriteLine(Proc_arg);
-                //getConnectToRemotePC();
-                //Console.ReadLine();
-                if (needToInsrall)
+                FuncService.StopService("Alpha.Server");
+                if (Proc_arg.Contains(".cfg"))
                 {
-                    FuncData.regData("install",CurrentDir);
+                    
+                    FuncData.BackUpCFG(currentPathToServer, Path.Combine(currentPathToServer.Remove(currentPathToServer.LastIndexOf("Server") - 1), "CfgBackUP"), currnetCfgName);
+                    Proc_arg = Proc_arg.Replace("<", " ");
+                    FileInfo fileInfo = new FileInfo(Proc_arg);
+                    fileInfo.CopyTo(Path.Combine(currentPathToServer, currnetCfgName), true);
+                    FuncData.generateMsg("Конфигурация " + Proc_arg + " скопирована в папку c Alpha.Server");
+                    FuncData.generateMsg("Текущий размер папки с баками:" + (FuncData.getSizeOfFolder(Path.Combine(currentPathToServer.Remove(currentPathToServer.LastIndexOf("Server") - 1), "CfgBackUP")) / 1048576) + "мб");
                 }
-                if (needToUnInstall)
+                else
                 {
-                    FuncData.regData("uninstall", CurrentDir);
+                    FuncData.generateMsg("Аргумент не содержит ссылок на конфигурацию. Аргумент - " + Proc_arg);
                 }
-                else if (!needToInsrall && !needToUnInstall &&!remote)
+                System.Threading.Thread.Sleep(1000);
+                FuncService.StartService("Alpha.Server");
+            }
+            else if (remote)
+            {
+                string _IP = "192.168.1.40";
+                string _user = "administrator";
+                string _password = "qwerty@123";
+                try
                 {
-                    FuncService.StopService("Alpha.Server");
-                    if (Proc_arg.Contains(".cfg"))
-                    {
-                        FuncData.BackUpCFG(currentPathToServer, Path.Combine(currentPathToServer.Remove(currentPathToServer.LastIndexOf("Server") - 1), "CfgBackUP"), currnetCfgName);
-                        FileInfo fileInfo = new FileInfo(Proc_arg);
-                        fileInfo.CopyTo(Path.Combine(currentPathToServer, currnetCfgName), true);
-                        FuncData.generateMsg("Конфигурация " + Proc_arg + " скопирована в папку c Alpha.Server");
-                        FuncData.generateMsg("Текущий размер папки с баками:" + (FuncData.getSizeOfFolder(Path.Combine(currentPathToServer.Remove(currentPathToServer.LastIndexOf("Server") - 1), "CfgBackUP")) / 1048576) + "мб");
-                    }
-                    else
-                    {
-                        FuncData.generateMsg("Аргумент не содержит ссылок на конфигурацию. Аргумент - " + Proc_arg);
-                    }
-                    System.Threading.Thread.Sleep(1000);
-                    FuncService.StartService("Alpha.Server");
+                    Console.WriteLine("Remote");
+                    FuncRemote.getConnectToRemotePC(_IP, _user, _password);
+                    //Console.ReadLine();
                 }
-                else if (remote)
+                catch (Exception e)
                 {
-                    string _IP = "192.168.1.39";
-                    string _user = "administrator";
-                    string _password = "qwerty@123";
-                    try
-                    {
-                        Console.WriteLine("Remote");
-                        //FuncRemote.getConnectToRemotePC(_IP, _user, _password);
-                        //Console.ReadLine();
-                    }
-                    catch (Exception e)
-                    {
-                        FuncData.generateMsg("При подключени к "+_IP + "\\"+ _user + " произошла ошибка: " +FuncExcept.ExceptionMsg(e.ToString()));
-                    }
-
+                    FuncData.generateMsg("При подключени к "+_IP + "\\"+ _user + " произошла ошибка: " +FuncExcept.ExceptionMsg(e.ToString()));
+                    //Console.ReadLine();
                 }
 
             }
+
+        }
     }
 }
+/// </summary>
