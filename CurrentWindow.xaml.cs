@@ -24,9 +24,9 @@ namespace alphaserver_cfg
             InitializeComponent();
         }
 
-        /*private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("WPF на METANIT.COM");
-        }*/
+        }
     }
 }

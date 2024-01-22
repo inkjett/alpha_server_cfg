@@ -4,6 +4,11 @@
     <_LastSelectedProfileId>C:\Users\administrator\Documents\alpha_server_cfg\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
+    <ApplicationDefinition Update="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="CurrentWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

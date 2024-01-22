@@ -18,7 +18,7 @@ using System.Reflection;
 using alphaserver_cfg;
 using System.Windows.Threading;
 using System.Windows;
-
+using WpfApp1;
 
 partial class Program
 {
@@ -45,6 +45,7 @@ partial class Program
 
 
 
+    [STAThread]
     static void Main(string[] args)
     {
         //проходим по аргументам при запуске файла проекта
@@ -98,10 +99,9 @@ partial class Program
         }
         else
         {
-            /*Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                var window = new CurrentWindow();
-            });*/
+            var app = new Application();
+            var window = new CurrentWindow();
+            app.Run(window);
         }
 
         //пока не придумал ничего лучше по получению пути до запускаемого файла, ниже это примеры что пробывал 
@@ -182,4 +182,3 @@ partial class Program
         }
     }
 }
-/// </summary>

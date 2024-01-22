@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         Title="CurrentWindow" Height="450" Width="800">
     <Grid>
-        
+        <Button Content="Нажать" FontSize="13" Width="80" Height="30"
+                Click="Button_Click" />
     </Grid>
 </Window>
