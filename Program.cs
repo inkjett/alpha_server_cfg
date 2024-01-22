@@ -60,6 +60,7 @@ partial class Program
             if (arg.Contains(".cfg"))
             {
                 Proc_arg = arg;
+                Proc_arg = Proc_arg.Replace(" ", "<");
                 epmtyParametr = false;
             }
             else if (arg.Contains("help") || arg.Contains("?"))
@@ -81,13 +82,13 @@ partial class Program
             else if (arg == "uninstall" && !help && !needToInsrall)
             {
                 needToUnInstall = true;
-                Proc_arg += " uninstall";
+                Proc_arg += "uninstall";
                 epmtyParametr = false;
             }
             else if (arg == "remote")
             {
                 remote = true;
-                Proc_arg = " remote";
+                Proc_arg = "remote";
                 epmtyParametr = false;
             }
         }    
@@ -140,6 +141,7 @@ partial class Program
                     if (Proc_arg.Contains(".cfg"))
                     {
                         FuncData.BackUpCFG(currentPathToServer, Path.Combine(currentPathToServer.Remove(currentPathToServer.LastIndexOf("Server") - 1), "CfgBackUP"), currnetCfgName);
+                        Proc_arg = Proc_arg.Replace("<", " ");
                         FileInfo fileInfo = new FileInfo(Proc_arg);
                         fileInfo.CopyTo(Path.Combine(currentPathToServer, currnetCfgName), true);
                         FuncData.generateMsg("Конфигурация " + Proc_arg + " скопирована в папку c Alpha.Server");

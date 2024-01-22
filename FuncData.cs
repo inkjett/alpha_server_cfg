@@ -82,7 +82,7 @@ namespace alphaserver_cfg
                 RegistryKey shell = cfgKey.CreateSubKey("shell");
                 RegistryKey copyAS = shell.CreateSubKey("copyAS");
                 RegistryKey command = copyAS.CreateSubKey("command");
-                command.SetValue("", _CurrentDir + "\\alphaserver_cfg.exe \"%1\"");
+                command.SetValue("", "\""+_CurrentDir + "\\alphaserver_cfg.exe\" \"%1\"");
                 copyAS.SetValue("MUIVerb", "Copy to Alpha.Server");
                 cfgKey.Close();
                 FuncData.generateMsg("Данные для запуска приложения в реестр записаны");
