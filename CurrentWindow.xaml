@@ -3,11 +3,28 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:alphaserver_cfg"
+        xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="CurrentWindow" Height="450" Width="800">
-    <Grid>
-        <Button Content="Нажать" FontSize="13" Width="80" Height="30"
-                Click="Button_Click" />
+        Title="alphaserver_cfg" Height="121" Width="287">
+
+    <Grid RenderTransformOrigin="0.5,0.5" Margin="0,0,0,3">
+        <Grid.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform/>
+                <SkewTransform/>
+                <RotateTransform Angle="0.02"/>
+                <TranslateTransform/>
+            </TransformGroup>
+        </Grid.RenderTransform>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button Content="Установить" FontSize="13" Width="110" Height="33"
+                Click="Button_Click_install" Margin="10,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Button Content="Удалить" FontSize="13" Width="111" Height="32"
+            Click="Button_Click_uninstall" Margin="147,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Button Content="Информация" FontSize="10" Width="76" Height="18"
+            Click="Button_Click_info"  Margin="182,56,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" >
+        </Button>
     </Grid>
 </Window>
