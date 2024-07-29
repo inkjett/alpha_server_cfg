@@ -65,14 +65,7 @@ partial class Program
                 {
                     if (arg.Contains(".cfg"))
                     {
-                        Proc_arg = arg.Replace(" ", "<"); ;
-                    }
-                    else if (arg.Contains("help") || arg.Contains("?"))
-                    {
-                        FuncData.generateMsg("Приложение для автоматического копирования конфигурации Alpha.Server в папку со службой Alpha.Server и автоматическим перезапуском службы.\n" +
-                                    "Для установки/удаления приложения используйте атрибуты install или uninstall, пример alphaserver_cfg.exe install или alphaserver_cfg.exe uninstall.\n" +
-                                    "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg\n" +
-                                    "Made by Oleg Galyamov for all users using AlphaPlatform (galyamov.oleg@automiq.ru)");
+                        Proc_arg = arg.Replace(" ", "<");
                     }
                     else { Proc_arg = arg; }
                 }
@@ -111,15 +104,9 @@ partial class Program
                 else
                 {
                     FuncData.regData("install", CurrentDir);
+                    FuncData.generateMsg("Приложение для автоматического копирования файла конфигурации Alpha.Server (*.cfg) в папку со службой Alpha.Server и последующим автоматическим перезапуском службы.\n" +
+                                         "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg\n");
                 }
-            }
-            else if (Proc_arg == "install")
-            {
-                FuncData.regData("install", CurrentDir);
-            }
-            else if (Proc_arg == "uninstall")
-            {
-                FuncData.regData("uninstall", CurrentDir);
             }
             else if (Proc_arg.Contains(".cfg"))
             {
@@ -140,6 +127,11 @@ partial class Program
                 System.Threading.Thread.Sleep(1000);
                 FuncService.ServiceManagement("Alpha.Server", "start");
             }
+            else if (Proc_arg.Contains("local"))
+            {
+                string[] tmp = Proc_arg.Substring(Proc_arg.IndexOf(":") + 1).Split(";");
+                FuncService.ServiceManagement(tmp[0], tmp[1]);
+            }
             else if (remote)
             {
                 string _IP = "192.168.1.39";
@@ -157,10 +149,13 @@ partial class Program
                 }
 
             }
-            else if (Proc_arg.Contains("local"))
+            else if (Proc_arg == "install")
             {
-                string[] tmp = Proc_arg.Substring(Proc_arg.IndexOf(":") + 1).Split(";");
-                FuncService.ServiceManagement(tmp[0], tmp[1]);
+                FuncData.regData("install", CurrentDir);
+            }
+            else if (Proc_arg == "uninstall")
+            {
+                FuncData.regData("uninstall", CurrentDir);
             }
         }
     }

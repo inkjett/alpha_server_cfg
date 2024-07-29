@@ -78,13 +78,20 @@ namespace alphaserver_cfg
                 @= "C:\\Users\\AutomiqUsr\\Desktop\\projects\\alphaserver_cfg\\alphaserver_cfg\\bin\\Debug\\net6.0\\alphaserver_cfg.exe \"%1\""*/ // путь указан для примера
 
                 RegistryKey currentUserKey = Registry.ClassesRoot;
-                RegistryKey cfgKey = currentUserKey.CreateSubKey(".cfg");
+                RegistryKey cfgKey = currentUserKey.CreateSubKey(".cfg"); // Добовляем пункт меню по клику по файлу .cfg
                 RegistryKey shell = cfgKey.CreateSubKey("shell");
                 RegistryKey copyAS = shell.CreateSubKey("copyAS");
                 RegistryKey command = copyAS.CreateSubKey("command");
                 command.SetValue("", "\""+_CurrentDir + "\\alphaserver_cfg.exe\" \"%1\"");
                 copyAS.SetValue("MUIVerb", "Copy to Alpha.Server");
                 cfgKey.Close();
+                RegistryKey _ControlMenu = Registry.ClassesRoot.OpenSubKey(@"\Directory\Background\shell");
+                RegistryKey _AlphaServer = _ControlMenu.CreateSubKey("Alpha.Server");
+                _AlphaServer.SetValue("MUIVerb", "Alpha.Server");
+                _AlphaServer.SetValue("Position", "Top");
+                _AlphaServer.SetValue("SubCommands", "Stop;Start");
+                _AlphaServer.Close();
+
                 FuncData.generateMsg("Данные для запуска приложения в реестр записаны");
             }
             else if (direction == "uninstall")
