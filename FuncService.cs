@@ -10,7 +10,6 @@ namespace alphaserver_cfg
 {
     internal class FuncService
     {
-
         public static void StopService(string serviceName)
         {
             ServiceController service = new ServiceController(serviceName);
@@ -76,6 +75,29 @@ namespace alphaserver_cfg
                 FuncData.generateMsg("Служба " + serviceName + " остановлена");
             }
 
+        }
+        public static void ServiceManagement(string _serviceName , string _command)
+        {
+            if (!string.IsNullOrEmpty(_command) && (!string.IsNullOrEmpty(_serviceName)))
+            {
+                if (_command == "stop")
+                {
+                    StopService(_serviceName);
+                }
+                else if (_command == "start")
+                {
+                    StartService(_serviceName);
+                }
+                else if (_command == "restart")
+                {
+                    StopService(_serviceName);
+                    StartService(_serviceName);
+                }
+            }
+            else 
+            {
+                FuncData.generateMsg("Один из параметров при для работы со службой оказался пуст, имя службы: " + _serviceName + ", команда " + _command + ".");
+            }
         }
     }
 }

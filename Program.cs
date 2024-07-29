@@ -123,7 +123,7 @@ partial class Program
             }
             else if (Proc_arg.Contains(".cfg"))
             {
-                FuncService.StopService("Alpha.Server");
+                FuncService.ServiceManagement("Alpha.Server", "stop");
                 if (Proc_arg.Contains(".cfg"))
                 {
                     FuncData.BackUpCFG(currentPathToServer, Path.Combine(currentPathToServer.Remove(currentPathToServer.LastIndexOf("Server") - 1), "CfgBackUP"), currnetCfgName);
@@ -138,7 +138,7 @@ partial class Program
                     FuncData.generateMsg("Аргумент не содержит ссылок на конфигурацию. Аргумент - " + Proc_arg);
                 }
                 System.Threading.Thread.Sleep(1000);
-                FuncService.StartService("Alpha.Server");
+                FuncService.ServiceManagement("Alpha.Server", "start");
             }
             else if (remote)
             {
@@ -159,10 +159,8 @@ partial class Program
             }
             else if (Proc_arg.Contains("local"))
             {
-                string[] tmp = Proc_arg.Substring(Proc_arg.IndexOf(":")+1).Split(";");
-                //Console.WriteLine(tmp[0]);
-                //Console.ReadLine();
-
+                string[] tmp = Proc_arg.Substring(Proc_arg.IndexOf(":") + 1).Split(";");
+                FuncService.ServiceManagement(tmp[0], tmp[1]);
             }
         }
     }
