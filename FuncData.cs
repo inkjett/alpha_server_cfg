@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -31,7 +32,6 @@ namespace alphaserver_cfg
             {
                 generateMsg(e.ToString());
             }
-            //generateMsg("Конфигурация " + Proc_arg + " скопирована в папку c Alpha.Server");
             return true;
         }
 
@@ -75,37 +75,50 @@ namespace alphaserver_cfg
                 "MUIVerb" = "Copy to Alpha.Server"
 
                 [HKEY_CLASSES_ROOT\.cfg\shell\copyAS\command]
-                @= "C:\\Users\\AutomiqUsr\\Desktop\\projects\\alphaserver_cfg\\alphaserver_cfg\\bin\\Debug\\net6.0\\alphaserver_cfg.exe \"%1\""*/ // путь указан для примера
+                @= "C:\\Users\\AutomiqUsr\\Desktop\\projects\\alphaserver_cfg\\alphaserver_cfg\\bin\\Debug\\net6.0\\alphaserver_cfg.exe \"%1\"" // путь указан для примера
 
+                [HKEY_CLASSES_ROOT\Directory\Background\shell\AlphaServer]
+                "MUIVerb" = "Alpha.Server"
+                "Position" = "Top"
+                "SubCommands" = "stop;start"
+                
+                [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell\start]
+                [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell\start\command]
+                @="\"C:\\Users\\AutomiqUsr\\Documents\\alpha_server_cfg\\bin\\Debug\\net6.0-windows\\\\alphaserver_cfg.exe\" \"local:Alpha.Server;start\""
+
+                [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell\stop]
+                [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell\stop\command]
+                @="\"C:\\Users\\AutomiqUsr\\Documents\\alpha_server_cfg\\bin\\Debug\\net6.0-windows\\\\alphaserver_cfg.exe\" \"local:Alpha.Server;stop\""*/
+
+                
+                // меню правая кнопка по файлу cfg
                 RegistryKey currentUserKey = Registry.ClassesRoot;
-                /*RegistryKey cfgKey = currentUserKey.CreateSubKey(".cfg"); // Добовляем пункт меню по клику по файлу .cfg
-                /*RegistryKey shell = cfgKey.CreateSubKey("shell");
+                RegistryKey cfgKey = currentUserKey.CreateSubKey(".cfg"); // Добовляем пункт меню по клику по файлу .cfg
+                RegistryKey shell = cfgKey.CreateSubKey("shell");
                 RegistryKey copyAS = shell.CreateSubKey("copyAS");
                 RegistryKey command = copyAS.CreateSubKey("command");
                 command.SetValue("", "\""+_CurrentDir + "\\alphaserver_cfg.exe\" \"%1\"");
                 copyAS.SetValue("MUIVerb", "Copy to Alpha.Server");
-                cfgKey.Close();*/
-                RegistryKey _ControlMenu = currentUserKey.OpenSubKey(@"\Directory\Background\shell",true).CreateSubKey("AlphaServer");
+                cfgKey.Close();
+
+                //меню перезарузки службы Alpha.Server
+                RegistryKey _ControlMenu = currentUserKey.OpenSubKey(@"\Directory\Background\shell",true).CreateSubKey("Alpha.Server");
                 _ControlMenu.SetValue("MUIVerb", "Alpha.Server");
                 _ControlMenu.SetValue("Position", "Top");
-                _ControlMenu.SetValue("SubCommands", "stop;start");
+                _ControlMenu.SetValue("SubCommands", "Stop;Start");
                 _ControlMenu.Close();
+
                 RegistryKey _secondary_menu = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true);
-                RegistryKey _start = _secondary_menu.CreateSubKey("start");
+                RegistryKey _start = _secondary_menu.CreateSubKey("Start");
                 RegistryKey _start_command = _start.CreateSubKey("command");
                 _start_command.SetValue("", "\"" + _CurrentDir + "\\alphaserver_cfg.exe\" \"local:Alpha.Server;start\"");
                 _start_command.Close();
-                RegistryKey _stop = _secondary_menu.CreateSubKey("stop");
+
+                RegistryKey _stop = _secondary_menu.CreateSubKey("Stop");
                 RegistryKey _stop_command = _stop.CreateSubKey("command");
                 _stop_command.SetValue("", "\"" + _CurrentDir + "\\alphaserver_cfg.exe\" \"local:Alpha.Server;stop\"");
                 _stop_command.Close();
 
-
-                /*RegistryKey _AlphaServer = _ControlMenu.CreateSubKey("Alpha.Server");
-                _AlphaServer.SetValue("MUIVerb", "Alpha.Server");
-                _AlphaServer.SetValue("Position", "Top");
-                _AlphaServer.SetValue("SubCommands", "Stop;Start");
-                _AlphaServer.Close();*/
                 FuncData.generateMsg("Данные для запуска приложения в реестр записаны");
             }
             else if (direction == "uninstall")
@@ -114,7 +127,9 @@ namespace alphaserver_cfg
                 if (currentUserKey.GetSubKeyNames().Contains(".cfg"))
                 {
                     currentUserKey.DeleteSubKeyTree(".cfg");
-                    currentUserKey.Close();
+                    currentUserKey.OpenSubKey(@"\Directory\Background\shell", true).DeleteSubKey("Alpha.Server");
+                    if (currentUserKey.GetSubKeyNames().Contains("Start")) { Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true).DeleteSubKeyTree("Start"); }
+                    if (currentUserKey.GetSubKeyNames().Contains("Stop")) { Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true).DeleteSubKeyTree("Stop"); }
                     FuncData.generateMsg("Данные для запуска приложения удалены из реестра");
                 }
                 else

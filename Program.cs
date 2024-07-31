@@ -21,63 +21,41 @@ using alphaserver_cfg;
 partial class Program
 {
     //переменные для параметров запуска 
-    static bool launchIsAdmin = false; // выставляется в true когда запускаем приложение с правами администратора
-    //static bool needLogs = false; // включить логирование 
-    static bool needToInsrall = false; // установка
-    static bool needToUnInstall = false; // удаление
-    static bool help = false; // помощь
-    static bool remote = false;
-    static bool tmp = false;
     //static string CurrentDir = Assembly.GetExecutingAssembly().Location.Remove(Assembly.GetExecutingAssembly().Location.LastIndexOf("\\")); //текущая папка с проектом
     static string CurrentDir = AppDomain.CurrentDomain.BaseDirectory;
     static string currentPathToServer = "C:\\Program Files\\Automiq\\Alpha.Server\\Server";
     static string currnetCfgName = "APServer.cfg";
-    static FuncExcept MsgExept = new FuncExcept();
-    static FuncData FuncData = new FuncData();
-    static FuncService FuncService = new FuncService();
-
-
-    //информация по лог файлу
-    public static string logfileName = "logFile.txt";
-    public static string CombinePath = Path.Combine(CurrentDir, logfileName); //общий путь до файла
-
-
 
 
     static void Main(string[] args)
     {
-        //var temp = Assembly.GetExecutingAssembly();
-        //generateMsg("Location="+Assembly.GetExecutingAssembly());
-        //проходим по аргументам при запуске файла проекта
-
 
         ProcessStartInfo proc = new ProcessStartInfo();
         proc.UseShellExecute = true; // непонятный параметр, который не позволяет запускать приложение из cmd если true
         
         proc.WorkingDirectory = CurrentDir;
         proc.FileName = CurrentDir + "\\alphaserver_cfg.exe";
-        if (!FuncData.IsAdministrator())
+        
+        if (!FuncData.IsAdministrator()) // первый запуск без прав адмнистратора 
         {
-            string Proc_arg = "";
             if (args.Length > 0)
             {
                 foreach (string arg in args) // Аргументы при запуске процессе
                 {
                     if (arg.Contains(".cfg"))
                     {
-                        Proc_arg = arg.Replace(" ", "<");
+                        proc.Arguments = arg.Replace(" ", "<");
                     }
-                    else { Proc_arg = arg; }
+                    else { proc.Arguments = arg; }
                 }
             }
             else
             {
-                Proc_arg = "empty";
+                proc.Arguments = "empty";
             }
-            proc.Arguments = Proc_arg;
             proc.Verb = "runas";
             Process.Start(proc); //запукаем процесс поторно с парвами администаратора
-            Environment.Exit(0); // завершаем текущий
+            Environment.Exit(0); // завершаем текущий процесс 
         }
 
         //пока не придумал ничего лучше по получению пути до запускаемого файла, ниже это примеры что пробывал 
@@ -87,7 +65,7 @@ partial class Program
         //Console.WriteLine("FileName=" + proc.FileName); //FileName=C:\Users\AutomiqUsr\alphaserver_cfg.exe
         //Console.WriteLine("FileName2="+ Assembly.GetExecutingAssembly().Location.Remove(Assembly.GetExecutingAssembly().Location.LastIndexOf("\\"))); //FileName2=C:\Users\AutomiqUsr
       
-        if (FuncData.IsAdministrator())
+        if (FuncData.IsAdministrator()) // второй запуск, уже с правами адинистратора
         {
             if (args.Length == 0) // проверка на пустой параметр при запуске, чтобы не было исколючения 
             {
@@ -102,11 +80,11 @@ partial class Program
                     FuncData.regData("uninstall", CurrentDir);
                 }
                 else
-                {
-                       
+                {                       
                     FuncData.regData("install", CurrentDir);
                     FuncData.generateMsg("Приложение для автоматического копирования файла конфигурации Alpha.Server (*.cfg) в папку со службой Alpha.Server и последующим автоматическим перезапуском службы.\n" +
-                                         "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg\n");
+                                         "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg\n"+
+                                         "Перезапуск службы Alpha.Server доступен из контекстного меню по нажатию правой кнопки мыши");
                 }
             }
             else if (Proc_arg.Contains(".cfg"))
@@ -133,7 +111,7 @@ partial class Program
                 string[] tmp = Proc_arg.Substring(Proc_arg.IndexOf(":") + 1).Split(";");
                 FuncService.ServiceManagement(tmp[0], tmp[1]);
             }
-            else if (remote)
+            else if (Proc_arg.Contains("remote"))
             {
                 string _IP = "192.168.1.39";
                 string _user = "administrator";
@@ -141,8 +119,6 @@ partial class Program
                 try
                 {
                     Console.WriteLine("Remote");
-                    //FuncRemote.getConnectToRemotePC(_IP, _user, _password);
-                    //Console.ReadLine();
                 }
                 catch (Exception e)
                 {
