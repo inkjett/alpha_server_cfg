@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Management;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +20,7 @@ namespace alphaserver_cfg
             {
                 if (!service.Status.Equals(ServiceControllerStatus.StopPending))
                 {
-                    service.Stop();
+                    service.Stop();          
                     System.Threading.Thread.Sleep(1000);
                     killAlphaPorcess(serviceName);//т.к. иногда бывает нужно останавливать службу со статусом "Останока", выполняем функцию функцию чтобы "убить" процесс принудительно
                 }
@@ -30,10 +33,15 @@ namespace alphaserver_cfg
         public static void StartService(string serviceName)
         {
             ServiceController service = new ServiceController(serviceName);
-            // Если служба не остановлена
-            if (service.Status != ServiceControllerStatus.Running)
+
+            if (GetSvrStatus(serviceName).Contains("Dis")) // проверка на статус запуска службы, отключена или инет 
             {
-                service.Start();
+                ChangeStartMode(serviceName,"Automatic");
+            }
+
+            if (service.Status != ServiceControllerStatus.Running) // Если служба не остановлена
+            {
+                service.Start();                
                 service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMinutes(3)); //Используйте , WaitForStatus чтобы приостановить обработку
                                                                                                  //приложения до тех пор, пока служба не достигнет требуемого состояния.
                 FuncData.generateMsg("Служба " + serviceName + " запущена");
@@ -76,28 +84,61 @@ namespace alphaserver_cfg
             }
 
         }
-        public static void ServiceManagement(string _serviceName , string _command)
+        public static void ServiceManagement(string _serviceName , string _command) // общая функция управдения службой
         {
-            if (!string.IsNullOrEmpty(_command) && (!string.IsNullOrEmpty(_serviceName)))
+            if (CheckSvrExist(_serviceName))
             {
-                if (_command == "stop")
+                if (!string.IsNullOrEmpty(_command) && (!string.IsNullOrEmpty(_serviceName)))
                 {
-                    StopService(_serviceName);
+                    if (_command == "stop")
+                    {
+                        StopService(_serviceName);
+                    }
+                    else if (_command == "start")
+                    {
+                        StartService(_serviceName);
+                    }
+                    else if (_command == "restart")
+                    {
+                        StopService(_serviceName);
+                        StartService(_serviceName);
+                    }
+                    else if (_command == "disabled")
+                    {
+                        ChangeStartMode(_serviceName, "Disabled");
+                        StopService(_serviceName);
+                    }
                 }
-                else if (_command == "start")
+                else
                 {
-                    StartService(_serviceName);
-                }
-                else if (_command == "restart")
-                {
-                    StopService(_serviceName);
-                    StartService(_serviceName);
+                    FuncData.generateMsg("Один из параметров при для работы со службой оказался пуст, имя службы: " + _serviceName + ", команда " + _command + ".");
                 }
             }
-            else 
+            else
             {
-                FuncData.generateMsg("Один из параметров при для работы со службой оказался пуст, имя службы: " + _serviceName + ", команда " + _command + ".");
+                FuncData.generateMsg("Служба: " + _serviceName + " не найдена в системе");
             }
+        }
+
+        public static void ChangeStartMode(string _serviceName, string _command) // функция управления статусом запуска службой, отключена включена итд
+        {
+            //Automatic
+            //Disabled
+            var m = new ManagementObject($"Win32_Service.Name=\"{_serviceName}\"");
+            m.InvokeMethod("ChangeStartMode", new object[] { _command });
+            FuncData.generateMsg("Изменен статус слжубы: " + _serviceName + ", на: " + _command);
+        }
+
+        public static string GetSvrStatus(string _serviceName) // функция проверки статуса запуска службы
+        {
+            ManagementPath p = new ManagementPath($"Win32_Service.Name=\"{_serviceName}\"");
+            ManagementObject ManagementObj = new ManagementObject(p);
+            return ManagementObj["StartMode"].ToString();     
+        }
+
+        public static bool CheckSvrExist(string _serviceName) // проверка наличия службы
+        {
+            return ServiceController.GetServices().Any(serviceController => serviceController.ServiceName.Contains(_serviceName));
         }
     }
 }

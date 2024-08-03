@@ -105,19 +105,24 @@ namespace alphaserver_cfg
                 RegistryKey _ControlMenu = currentUserKey.OpenSubKey(@"\Directory\Background\shell",true).CreateSubKey("Alpha.Server");
                 _ControlMenu.SetValue("MUIVerb", "Alpha.Server");
                 _ControlMenu.SetValue("Position", "Top");
-                _ControlMenu.SetValue("SubCommands", "Stop;Start");
+                _ControlMenu.SetValue("SubCommands", "РеСтарт;Стоп;Отключить");
                 _ControlMenu.Close();
 
                 RegistryKey _secondary_menu = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true);
-                RegistryKey _start = _secondary_menu.CreateSubKey("Start");
+                RegistryKey _start = _secondary_menu.CreateSubKey("РеСтарт");
                 RegistryKey _start_command = _start.CreateSubKey("command");
-                _start_command.SetValue("", "\"" + _CurrentDir + "\\alphaserver_cfg.exe\" \"local:Alpha.Server;start\"");
+                _start_command.SetValue("", "\"" + _CurrentDir + "\\alphaserver_cfg.exe\" \"local:Alpha.Server;restart\"");
                 _start_command.Close();
 
-                RegistryKey _stop = _secondary_menu.CreateSubKey("Stop");
+                RegistryKey _stop = _secondary_menu.CreateSubKey("Стоп");
                 RegistryKey _stop_command = _stop.CreateSubKey("command");
                 _stop_command.SetValue("", "\"" + _CurrentDir + "\\alphaserver_cfg.exe\" \"local:Alpha.Server;stop\"");
                 _stop_command.Close();
+
+                RegistryKey _disable = _secondary_menu.CreateSubKey("Отключить");
+                RegistryKey _disable_command = _disable.CreateSubKey("command");
+                _disable_command.SetValue("", "\"" + _CurrentDir + "\\alphaserver_cfg.exe\" \"local:Alpha.Server;disabled\"");
+                _disable_command.Close();
 
                 FuncData.generateMsg("Данные для запуска приложения в реестр записаны");
             }
@@ -128,8 +133,9 @@ namespace alphaserver_cfg
                 {
                     currentUserKey.DeleteSubKeyTree(".cfg");
                     currentUserKey.OpenSubKey(@"\Directory\Background\shell", true).DeleteSubKey("Alpha.Server");
-                    if (currentUserKey.GetSubKeyNames().Contains("Start")) { Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true).DeleteSubKeyTree("Start"); }
-                    if (currentUserKey.GetSubKeyNames().Contains("Stop")) { Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true).DeleteSubKeyTree("Stop"); }
+                    if (currentUserKey.GetSubKeyNames().Contains("РеСтарт")) { Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true).DeleteSubKeyTree("Start"); }
+                    if (currentUserKey.GetSubKeyNames().Contains("Стоп")) { Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true).DeleteSubKeyTree("Stop"); }
+                    if (currentUserKey.GetSubKeyNames().Contains("Отключить")) { Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell", true).DeleteSubKeyTree("Disable"); }
                     FuncData.generateMsg("Данные для запуска приложения удалены из реестра");
                 }
                 else

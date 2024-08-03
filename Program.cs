@@ -31,8 +31,7 @@ partial class Program
     {
 
         ProcessStartInfo proc = new ProcessStartInfo();
-        proc.UseShellExecute = true; // непонятный параметр, который не позволяет запускать приложение из cmd если true
-        
+        proc.UseShellExecute = true; // непонятный параметр, который не позволяет запускать приложение из cmd если true        
         proc.WorkingDirectory = CurrentDir;
         proc.FileName = CurrentDir + "\\alphaserver_cfg.exe";
         
@@ -83,8 +82,8 @@ partial class Program
                 {                       
                     FuncData.regData("install", CurrentDir);
                     FuncData.generateMsg("Приложение для автоматического копирования файла конфигурации Alpha.Server (*.cfg) в папку со службой Alpha.Server и последующим автоматическим перезапуском службы.\n" +
-                                         "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу .cfg\n"+
-                                         "Перезапуск службы Alpha.Server доступен из контекстного меню по нажатию правой кнопки мыши");
+                                         "Копирование конфигурации осуществляется вызовом контестного меню кликом правой кнопки мыши по фалу с раширением .cfg\n"+
+                                         "Так же по нажатию правой кнопки мыши и вызова контекстного меню доступен перезапуск службы Alpha.Server");
                 }
             }
             else if (Proc_arg.Contains(".cfg"))
@@ -96,7 +95,7 @@ partial class Program
                     Proc_arg = Proc_arg.Replace("<", " ");
                     FileInfo fileInfo = new FileInfo(Proc_arg);
                     fileInfo.CopyTo(Path.Combine(currentPathToServer, currnetCfgName), true);
-                    FuncData.generateMsg("Конфигурация " + Proc_arg + " скопирована в папку c Alpha.Server");
+                    FuncData.generateMsg("Конфигурация " + Proc_arg + " скопирована в папку Alpha.Server");
                     FuncData.generateMsg("Текущий размер папки с баками:" + (FuncData.getSizeOfFolder(Path.Combine(currentPathToServer.Remove(currentPathToServer.LastIndexOf("Server") - 1), "CfgBackUP")) / 1048576) + "мб");
                 }
                 else
@@ -124,7 +123,6 @@ partial class Program
                 {
                     FuncData.generateMsg("При подключени к " + _IP + "\\" + _user + " произошла ошибка: " + FuncExcept.ExceptionMsg(e.ToString()));
                 }
-
             }
             else if (Proc_arg == "install")
             {
