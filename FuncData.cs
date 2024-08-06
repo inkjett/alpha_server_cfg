@@ -23,7 +23,7 @@ namespace alphaserver_cfg
                 if (!Directory.Exists(pathTo))
                 {
                     Directory.CreateDirectory(pathTo);
-                    generateMsg("Создаа паппка для бакапа конфигураций:" + pathTo);
+                    generateMsg("Создана папка для бакапа файлов конфигураций:" + pathTo);
                 }
                 fileInfo.CopyTo(pathTo + "\\" + "APServer_" + now.ToString("MM_dd_yyyy_HH_mm") + ".cfg", true);
                 generateMsg("Файл бакапа сохранен:" + pathTo + "\\" + "APServer_" + now.ToString("MM_dd_yyyy_HH_mm") + ".cfg");
