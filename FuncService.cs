@@ -101,6 +101,7 @@ namespace alphaserver_cfg
                     else if (_command == "restart")
                     {
                         StopService(_serviceName);
+                        System.Threading.Thread.Sleep(1000);
                         StartService(_serviceName);
                     }
                     else if (_command == "disabled")
